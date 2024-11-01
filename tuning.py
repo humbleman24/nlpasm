@@ -67,7 +67,7 @@ for epoch in range(1):
         input_token = input_token.to(device)
         output_token = output_token.to(device)
 
-        output = model(input_ids = input_token)
+        output = model(input_ids = input_token, labels = output_token)
         loss = output.loss
 
         optimizer.zero_grad()
