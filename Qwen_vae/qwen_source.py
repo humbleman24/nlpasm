@@ -949,6 +949,8 @@ class Qwen2Model(Qwen2PreTrainedModel):
         )
 
         hidden_states = inputs_embeds
+        vae_out = self.vae(hidden_states)
+        hidden_states = vae_out[0]
 
         # create position embeddings to be shared across the decoder layers
         position_embeddings = self.rotary_emb(hidden_states, position_ids)
