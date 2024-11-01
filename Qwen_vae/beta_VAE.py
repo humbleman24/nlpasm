@@ -79,7 +79,7 @@ class BetaVAE(BaseVAE):
                     input_size=in_dim,
                     hidden_size=lstm_hidden_size,
                     num_layers=2,
-                    batch_first=True,
+                    # batch_first=True,
                     bidirectional=self.bidirectional
                 )
             )
@@ -115,7 +115,7 @@ class BetaVAE(BaseVAE):
                 nn.LSTM(
                     input_size=in_dim,
                     hidden_size=lstm_hidden_size,
-                    batch_first=True,
+                    # batch_first=True,
                     bidirectional=self.bidirectional
                 ))
             self.decoder_bn_layers.append(
@@ -141,7 +141,6 @@ class BetaVAE(BaseVAE):
             input = input.permute(0, 2, 1)
 
         result = torch.flatten(input, start_dim=1)
-        print(result.shape)
         # Split the result into mu and var components
         # of the latent Gaussian distribution
         mu = self.fc_mu(result)
@@ -234,11 +233,14 @@ class BetaVAE(BaseVAE):
         return self.forward(x)[0]
 
 
-model = BetaVAE(embedding_dim=3584, context_length=128, latent_dim=10)
-x = torch.randn(16, 128, 3584)
-out = model(x)
-print(out[1].shape)
-loss_dict = model.loss_function(*out, M_N=16 / 3200)
-print(loss_dict["loss"])
-print(loss_dict["Reconstruction_Loss"])
-print(loss_dict["KLD"])
+
+
+if __name__ == "__main__":
+    model = BetaVAE(embedding_dim=3584, context_length=128, latent_dim=10)
+    x = torch.randn(16, 128, 3584)
+    out = model(x)
+    print(out[1].shape)
+    loss_dict = model.loss_function(*out, M_N=16 / 3200)
+    print(loss_dict["loss"])
+    print(loss_dict["Reconstruction_Loss"])
+    print(loss_dict["KLD"])

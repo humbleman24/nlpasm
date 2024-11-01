@@ -32,8 +32,7 @@ from transformers.cache_utils import Cache, DynamicCache, StaticCache
 from transformers.generation import GenerationMixin
 from transformers.modeling_attn_mask_utils import AttentionMaskConverter
 from transformers.modeling_outputs import (
-    BaseModelOutputWithPast,
-    CausalLMOutputWithPast,
+    
     SequenceClassifierOutputWithPast,
     TokenClassifierOutput,
 )
@@ -49,6 +48,7 @@ from transformers.utils import (
     replace_return_docstrings,
 )
 from configuration_qwen2 import Qwen2Config
+from return_data import CausalLMOutputWithPast, BaseModelOutputWithPast
 
 import beta_VAE as vae
 
@@ -867,7 +867,7 @@ class Qwen2Model(Qwen2PreTrainedModel):
         self.vocab_size = config.vocab_size
 
         self.embed_tokens = nn.Embedding(config.vocab_size, config.hidden_size, self.padding_idx)
-        self.vae = vae.BetaVAE(embedding_dim=config.hidden_size, context_length=128, latent_dim=10)
+        self.vae = vae.BetaVAE(embedding_dim=3584, context_length=128, latent_dim=10)
         self.layers = nn.ModuleList(
             [Qwen2DecoderLayer(config, layer_idx) for layer_idx in range(config.num_hidden_layers)]
         )
@@ -949,6 +949,7 @@ class Qwen2Model(Qwen2PreTrainedModel):
         )
 
         hidden_states = inputs_embeds
+        print(hidden_states.shape)
         vae_out = self.vae(hidden_states)
         hidden_states = vae_out[0]
 
@@ -1010,6 +1011,7 @@ class Qwen2Model(Qwen2PreTrainedModel):
             return tuple(v for v in [hidden_states, next_cache, all_hidden_states, all_self_attns] if v is not None)
         return BaseModelOutputWithPast(
             last_hidden_state=hidden_states,
+            vae_out = vae_out,
             past_key_values=next_cache,
             hidden_states=all_hidden_states,
             attentions=all_self_attns,
@@ -1215,6 +1217,7 @@ class Qwen2ForCausalLM(Qwen2PreTrainedModel, GenerationMixin):
             past_key_values=outputs.past_key_values,
             hidden_states=outputs.hidden_states,
             attentions=outputs.attentions,
+            vae_out = outputs.vae_out
         )
 
     # Copied from transformers.models.llama.modeling_llama.LlamaForCausalLM.prepare_inputs_for_generation

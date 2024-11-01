@@ -3,7 +3,7 @@ import torch
 import torch.nn
 import torch.optim as optim
 
-from ruozhi_dataset import Ruozhi_dataset
+from Qwen_vae.ruozhi_dataset import Ruozhi_dataset
 from torch.utils.data import DataLoader
 
 import glob
